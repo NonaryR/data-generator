@@ -1,0 +1,2 @@
+{:up   ["ALTER TABLE random_data_2 ADD COLUMN optional_fields json;"]
+ :down ["AlTER TABLE random_data_2 DROP optional_fields;"]}

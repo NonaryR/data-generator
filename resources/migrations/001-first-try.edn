@@ -1,0 +1,2 @@
+{:up   ["CREATE TABLE random_data_2 (id serial PRIMARY KEY, name text, price integer, description text);"]
+ :down ["DROP TABLE random_data_2;"]}
