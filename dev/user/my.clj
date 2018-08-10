@@ -3,7 +3,7 @@
             [mount.core :as mount]))
 
 (defn start []
-  (mount/start))
+  (mount/start-with-args :prod))
 
 (defn stop []
   (mount/stop))

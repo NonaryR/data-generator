@@ -2,19 +2,26 @@
   (:require [ragtime.jdbc :as jdbc]
             [ragtime.repl :as repl]
             [data-generator.utils :as u]
-            [clj-time.core :as t]))
+            [mount.core :as mount]))
+
+(defn run-config [profile]
+  (-> (mount/only #{#'u/config})
+      (mount/with-args (keyword profile))
+      (mount/start)))
 
 (defn load-config []
   {:datastore  (jdbc/sql-database u/config)
    :migrations (jdbc/load-resources "migrations")})
 
-(defn create-migration []
-  (let [path (format "resources/migrations/%s.edn" (t/now))
+(defn create-migration [description]
+  (let [path (format "resources/migrations/%s.edn" description)
         template {:up [""] :down [""]}]
     (spit path template)))
 
-(defn migrate []
+(defn migrate [profile]
+  (run-config profile)
   (repl/migrate (load-config)))
 
-(defn rollback []
+(defn rollback [profile]
+  (run-config profile)
   (repl/rollback (load-config)))
