@@ -8,8 +8,9 @@
                  [clojure.jdbc/clojure.jdbc-c3p0 "0.3.3"]
                  [aero "1.1.3"]
                  [ragtime "0.7.2"]
-                 ;; [clj-time "0.14.4"]
-                 [com.taoensso/timbre "4.10.0"]]
+                 [clj-time "0.14.4"]
+                 [com.taoensso/timbre "4.10.0"]
+                 [org.clojure/core.async "0.4.474"]]
   :profiles {:repl {:dependencies [[org.clojure/tools.namespace "0.2.11"]]
                     :repl-options {:init-ns user.my}
                     :injections [(require 'clojure.tools.namespace.repl)

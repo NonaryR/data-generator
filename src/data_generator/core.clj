@@ -6,7 +6,8 @@
             [jdbc.pool.c3p0 :as pool]
             [clojure.test.check.generators :as gen]
             [taoensso.timbre :as log]
-            [data-generator.utils :as u]))
+            [data-generator.utils :as u]
+            [clj-time.coerce :as tc]))
 
 (defn connect-db []
   (log/info "connect to db")
@@ -25,7 +26,7 @@
                         (h/columns :name :price :description)
                         (h/values
                          [["nvidia" 100 "videocard"]
-                          ["asus" 100 "motherboard"]])
+                          #_["asus" 100 "motherboard"]])
                         (sql/format))))
 
 (def ^:private columns [:id :name :price :created-date
@@ -33,9 +34,24 @@
 
 (defn write-to-db [db values]
   (jdbc/execute! db (-> (h/insert-into :generated-data)
-                        (h/columns columns)
-                        (h/values [values])
+                        (h/columns :name :price :created-date
+                                   :description :in-stock)
+                        (h/values [(into [] values)])
                         (sql/format))))
+
+#_(write-to-db db "asus" 20044 (tc/to-sql-date  1444433115447 ) "motherboard" true)
+
+(defn data-to-db [n-samples]
+  (let [f (fn [generator] (gen/sample generator n-samples))
+        names (f (gen/not-empty gen/string))
+        prices (f (gen/choose 10 100000))
+        tms (map #(tc/to-sql-date %) (f (gen/choose 1444433115447 1555533915447)))
+        descs (f (gen/fmap #(apply str (repeat 10 %))
+                           (gen/not-empty gen/string)))
+        stocks (f gen/boolean)]
+    (->> (partition 5 (interleave names prices tms descs stocks))
+         (map (partial write-to-db db)))))
+
 
 (comment
 
@@ -45,6 +61,10 @@
   (def descs (gen/sample (gen/fmap #(apply str (repeat 10 %))
                                    (gen/not-empty gen/string)) 10))
   (def stocks (gen/sample gen/boolean 10))
+
+
+  (defn f [n] (do (println "start") (Thread/sleep (* n 1000)) (println "finish")))
+
   )
 
 (defn -main
