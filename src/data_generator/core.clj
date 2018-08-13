@@ -28,7 +28,8 @@
                         (sql/format))))
 
 (defn data-to-db [db n-samples]
-  (let [->>gen (fn [generator] (gen/sample generator n-samples))
+  (let [partion* (/ n-samples 10)
+        ->>gen (fn [generator] (gen/sample generator n-samples))
         names (->>gen (gen/not-empty gen/string-ascii))
         prices (->>gen (gen/choose 10 100000))
         tms (map #(tc/to-sql-date %) (->>gen (gen/choose 1444433115447 1555533915447)))
@@ -38,7 +39,7 @@
     (->> (partition 5 (interleave names prices tms descs stocks))
          (map (partial interleave columns))
          (map (partial apply assoc {}))
-         (partition 1000)
+         (partition partion*)
          (map (partial write-to-db db)))))
 (comment
 

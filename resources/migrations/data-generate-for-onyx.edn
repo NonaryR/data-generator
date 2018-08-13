@@ -1,0 +1,2 @@
+{:up   ["CREATE TABLE generated_data_onyx (id SERIAL PRIMARY KEY, name TEXT, price INTEGER, created_date timestamp without time ZONE, description TEXT, in_stock BOOLEAN);"]
+ :down ["DROP TABLE generated_data_onyx;"]}
