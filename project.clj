@@ -11,6 +11,7 @@
                  [clj-time "0.14.4"]
                  [com.taoensso/timbre "4.10.0"]
                  [org.clojure/core.async "0.4.474"]]
+  :plugins [[lein-cljfmt "0.6.0"]]
   :profiles {:repl {:dependencies [[org.clojure/tools.namespace "0.2.11"]]
                     :repl-options {:init-ns user.my}
                     :injections [(require 'clojure.tools.namespace.repl)
