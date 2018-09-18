@@ -7,8 +7,8 @@
             [clojure.test.check.generators :as gen]
             [taoensso.timbre :as log]
             [data-generator.utils :as u]
-            [clj-time.coerce :as tc]
-            [clojure.core.async :as a]))
+            [clj-time.coerce :as tc])
+  (:gen-class))
 
 (defn connect-db []
   (log/info "connect to db")
@@ -16,19 +16,19 @@
 
 (defstate db
   :start (connect-db)
-  :stop (.close db))
+  :stop  (.close db))
 
 (def ^:private columns [:name :price :created-date
                         :description :in-stock])
 
 (defn write-to-db [db values]
-  ;; батч в 1000 записей
   (jdbc/execute! db (-> (h/insert-into :generated-data)
                         (h/values (into [] values))
                         (sql/format))))
 
 (defn data-to-db [db n-samples]
-  (let [partion* (/ n-samples 10)
+  (log/info "writing data to db")
+  (let [batch (/ n-samples 10)
         ->>gen (fn [generator] (gen/sample generator n-samples))
         names (->>gen (gen/not-empty gen/string-ascii))
         prices (->>gen (gen/choose 10 100000))
@@ -39,19 +39,14 @@
     (->> (partition 5 (interleave names prices tms descs stocks))
          (map (partial interleave columns))
          (map (partial apply assoc {}))
-         (partition partion*)
-         (map (partial write-to-db db)))))
-(comment
-
-  (defn f [n]
-    (do (println n) (Thread/sleep (* n 1000)) (println "finish")))
-
-  )
+         (partition batch)
+         (mapv (partial write-to-db db)))))
 
 (defn -main
-  "I don't do a whole lot ... yet."
   [& args]
-  (let [profile (or (keyword (first args)) :prod)]
+  (let [profile (keyword (first args))
+        num-samples* (or (second args) "1000")
+        num-samples (Integer/parseInt num-samples*)]
     (mount/start-with-args profile)
-    (println profile)
-    (println u/config)))
+    (log/info "profile" profile "num-samples" num-samples)
+    (data-to-db db num-samples)))

@@ -12,13 +12,15 @@
                  [com.taoensso/timbre "4.10.0"]
                  [org.clojure/core.async "0.4.474"]]
   :plugins [[lein-cljfmt "0.6.0"]]
-  :profiles {:repl {:dependencies [[org.clojure/tools.namespace "0.2.11"]]
+  :profiles {:repl {:source-paths ["dev"]
+                    :dependencies [[org.clojure/tools.namespace "0.2.11"]]
                     :repl-options {:init-ns user.my}
                     :injections [(require 'clojure.tools.namespace.repl)
                                  (require 'user.my)]}
              :uberjar {:aot :all}}
 
-  :source-paths ["src" "dev"]
+  :main data-generator.core
+  :source-paths ["src"]
   :aliases {"migrate" ["run" "-m" "user.migrator/migrate"]
             "rollback" ["run" "-m" "user.migrator/rollback"]
             "create-migration" ["run" "-m" "user.migrator/create-migration"]})

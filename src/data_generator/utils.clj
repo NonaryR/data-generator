@@ -12,11 +12,3 @@
 
 (defstate config
   :start (load-config (mount/args)))
-
-;;create role nonaryr with LOGIN PASSWORD '123';
-;;create database test_db
-;;grant all privileges on database test_db to nonaryr;
-;;alter role nonaryr createdb;
-;;alter role nonaryr superuser;
-
-;;psql postgres -U nonaryr
